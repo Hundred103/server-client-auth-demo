@@ -1,0 +1,55 @@
+import socket
+import json
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+
+TTP_HOST = "127.0.0.1"
+TTP_PORT = 9000
+
+SERVER_HOST = "0.0.0.0"
+SERVER_PORT = 8000
+
+server_id = "server1"
+
+private_key = rsa.generate_private_key(public_exponent=65537, key_size=4096)
+
+public_key = private_key.public_key()
+
+public_pem = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
+
+def register():
+
+    msg = {
+        "type": "register_server",
+        "id": server_id,
+        "public_key": public_pem.decode()
+    }
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((TTP_HOST, TTP_PORT))
+        s.send(json.dumps(msg).encode())
+        print("Registered in TTP:", s.recv(1024))
+
+
+def start_server():
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((SERVER_HOST, SERVER_PORT))
+        s.listen()
+
+        print("Server running...")
+
+        while True:
+            conn, addr = s.accept()
+
+            data = conn.recv(4096)
+
+            print("Received:", data.decode())
+
+            conn.send(b"Hello world!")
+
+            conn.close()
+
+
+register()
+start_server()
