@@ -1,3 +1,5 @@
+import hashlib
+import logging
 import socket
 import json
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -9,7 +11,18 @@ TTP_PORT = 9000
 SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 8000
 
-server_id = "server1"
+actual_server_id = "server1"
+
+server_id = hashlib.sha256(actual_server_id.encode()).hexdigest()
+
+# logs
+
+logging.basicConfig(
+    filename="server.log",
+    level=logging.INFO,
+    format="%(asctime)s: %(message)s"
+)
+
 
 private_key = rsa.generate_private_key(public_exponent=65537, key_size=4096)
 

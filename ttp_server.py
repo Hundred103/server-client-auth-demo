@@ -20,7 +20,7 @@ servers = {}
 logging.basicConfig(
     filename="ttp.log",
     level=logging.INFO,
-    format="%(asctime)s , %(message)s"
+    format="%(asctime)s: %(message)s"
 )
 
 # klucz
