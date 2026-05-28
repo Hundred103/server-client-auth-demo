@@ -1,4 +1,5 @@
 import json
+import logging
 import socket
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
@@ -8,6 +9,14 @@ PORT = 9000
 
 users = {}
 servers = {}
+
+#logging
+
+logging.basicConfig(
+    filename="ttp.log",
+    level=logging.INFO,
+    format="%(asctime)s , %(message)s"
+)
 
 private_key = rsa.generate_private_key(public_exponent=65537, key_size=4096)
 
