@@ -57,8 +57,38 @@ def register():
 
         logging.info("Server registered...")
 
+def request_session_key():
+    global session_key
+
+    msg={
+        "type": "request_session_key",
+        "user_id": hashlib.sha256("user1".encode()).hexdigest(),
+        "server_id": server_id
+        }
+
+    with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as s:
+        s.connect((TTP_HOST,TTP_PORT))
+        s.send((json.dumps(msg).encode()))
+
+        response = json.loads(s.recv(16384).decode())
+        encrypted_key = bytes.fromhex(response["server_key"])
+        session_key = private_key.decrypt(
+            encrypted_key,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+
+    logging.info("Session key received")
+
 
 def start_server():
+
+    global session_key
+
+    request_session_key()
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((SERVER_HOST, SERVER_PORT))
