@@ -2,8 +2,10 @@ import hashlib
 import logging
 import socket
 import json
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
+from cProfile import label
+
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import serialization, hashes
 
 TTP_HOST = "127.0.0.1"
 TTP_PORT = 9000
@@ -30,7 +32,13 @@ public_key = private_key.public_key()
 
 public_pem = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
 
+certificate = None
+session_key = None
+
+
 def register():
+
+    global certificate
 
     msg = {
         "type": "register_server",
@@ -41,7 +49,13 @@ def register():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((TTP_HOST, TTP_PORT))
         s.send(json.dumps(msg).encode())
+
+        response =json.loads(s.recv(16384).decode())
+        certificate = response["certificate"]
+
         print("Registered in TTP:", s.recv(1024))
+
+        logging.info("Server registered...")
 
 
 def start_server():
