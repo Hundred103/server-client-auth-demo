@@ -3,9 +3,11 @@ import logging
 import socket
 import json
 from cProfile import label
+from pydoc import plaintext
 
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 TTP_HOST = "127.0.0.1"
 TTP_PORT = 9000
@@ -99,11 +101,18 @@ def start_server():
         while True:
             conn, addr = s.accept()
 
-            data = conn.recv(4096)
+            nonce = conn.recv(12)
 
-            print("Received:", data.decode())
+            cipher = conn.recv(4096)
 
-            conn.send(b"Hello world!")
+            aesgcm = AESGCM(session_key)
+
+            plain = aesgcm.decrypt(nonce,cipher,None)
+
+            print("Received:", plain.decode())
+            logging.info("Message recieved")
+
+            conn.send(b"OK")
 
             conn.close()
 
