@@ -1,10 +1,12 @@
 import hashlib
+import os
 import socket
 import json
 from cProfile import label
 
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 TTP_HOST = "127.0.0.1"
 TTP_PORT = 9000
@@ -76,13 +78,22 @@ def request_session_key():
 
 def connect_server():
 
+    request_session_key()
+
+    aesgcm = AESGCM(session_key)
+
+    nonce = os.urandom(12)
+
+    cipher = aesgcm.encrypt(nonce,b"Hello world!",None)
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
         s.connect((SERVER_HOST, SERVER_PORT))
 
-        s.send(b"Hello server!")
+        s.send(nonce)
+        s.send(cipher)
 
-        print("Server response:", s.recv(4096).decode())
+        print("Server response:", s.recv(1024).decode())
 
 
 register()
