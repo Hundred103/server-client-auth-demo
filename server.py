@@ -107,7 +107,7 @@ def start_server():
                 plain = aesgcm.decrypt(nonce,cipher,None)
 
                 print("Received:", plain.decode())
-                logging.info("Message recieved")
+                logging.info(f"Message recieved: {plain.decode()}")
 
                 conn.send(b"OK")
 
