@@ -1,3 +1,4 @@
+import hashlib
 import socket
 import json
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -11,11 +12,18 @@ SERVER_PORT = 8000
 
 user_id = "user1"
 
+hash_user_id = hashlib.sha256(user_id.encode()).hexdigest()
+
 private_key = rsa.generate_private_key(public_exponent=65537, key_size=4096)
 
 public_key = private_key.public_key()
 
 public_pem = public_key.public_bytes( encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
+
+
+
+certificate = None
+session_key = None
 
 def register():
 
