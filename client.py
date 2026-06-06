@@ -31,7 +31,7 @@ def register():
 
     msg = {
         "type": "register_user",
-        "id": user_id,
+        "id": hash_user_id,
         "public_key": public_pem.decode()
     }
 
@@ -43,6 +43,16 @@ def register():
         certificate = response["certificate"]
 
         print("Registered in TTP:", s.recv(1024))
+
+def request_session_key():
+    global session_key
+
+    msg = {
+        "type": "request_session_key",
+        "user_id": hash_user_id,
+        "server_id": hashlib.sha256("server1".encode()).hexdigest()
+    }
+
 
 
 def connect_server():

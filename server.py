@@ -13,9 +13,9 @@ TTP_PORT = 9000
 SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 8000
 
-actual_server_id = "server1"
+server_id = "server1"
 
-server_id = hashlib.sha256(actual_server_id.encode()).hexdigest()
+hash_server_id = hashlib.sha256(server_id.encode()).hexdigest()
 
 # logs
 
@@ -42,7 +42,7 @@ def register():
 
     msg = {
         "type": "register_server",
-        "id": server_id,
+        "id": hash_server_id,
         "public_key": public_pem.decode()
     }
 
@@ -63,7 +63,7 @@ def request_session_key():
     msg={
         "type": "request_session_key",
         "user_id": hashlib.sha256("user1".encode()).hexdigest(),
-        "server_id": server_id
+        "server_id": hash_server_id
         }
 
     with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as s:
