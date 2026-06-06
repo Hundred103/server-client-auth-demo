@@ -85,11 +85,6 @@ def request_session_key():
 
 
 def start_server():
-
-    global session_key
-
-    request_session_key()
-
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((SERVER_HOST, SERVER_PORT))
         s.listen()
@@ -98,21 +93,30 @@ def start_server():
 
         while True:
             conn, addr = s.accept()
+            print(f"Client {addr}")
 
-            nonce = conn.recv(12)
+            try:
+                request_session_key()
 
-            cipher = conn.recv(4096)
+                nonce = conn.recv(12)
 
-            aesgcm = AESGCM(session_key)
+                cipher = conn.recv(4096)
 
-            plain = aesgcm.decrypt(nonce,cipher,None)
+                aesgcm = AESGCM(session_key)
 
-            print("Received:", plain.decode())
-            logging.info("Message recieved")
+                plain = aesgcm.decrypt(nonce,cipher,None)
 
-            conn.send(b"OK")
+                print("Received:", plain.decode())
+                logging.info("Message recieved")
 
-            conn.close()
+                conn.send(b"OK")
+
+            except Exception as e:
+                print(f"Error processing request: {e}")
+                conn.send(b"ERROR")
+
+            finally:
+                conn.close()
 
 
 register()

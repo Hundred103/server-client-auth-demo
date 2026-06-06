@@ -96,4 +96,5 @@ def connect_server():
 
 
 register()
+input("Press enter to send a message...")
 connect_server()

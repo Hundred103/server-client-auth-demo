@@ -6,8 +6,8 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ttp.py .
+COPY ttp_server.py .
 
 EXPOSE 9000
 
-CMD ["python","ttp.py"]
+CMD ["python","ttp_server.py"]

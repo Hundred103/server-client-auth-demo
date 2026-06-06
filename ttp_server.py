@@ -14,6 +14,7 @@ PORT = 9000
 
 users = {}
 servers = {}
+session_keys = {}
 
 # logging
 
@@ -120,7 +121,17 @@ def handle_client(conn):
         user_id = msg["user_id"]
         server_id = msg["server_id"]
 
-        session_key = os.urandom(32)
+        if user_id not in users or server_id not in servers:
+            logging.warning(f"Session key denied: User {user_id} or Server {server_id} not registered yet.")
+            conn.send(json.dumps({"error": "Not registered"}).encode())
+            return
+
+        session_lookup = f"{user_id}_{server_id}"
+        if session_lookup in session_keys:
+            session_key = session_keys[session_lookup]
+        else:
+            session_key = os.urandom(32)
+            session_keys[session_lookup] = session_key
 
         user_public_key = serialization.load_pem_public_key(
             users[user_id]["public_key"].encode()
