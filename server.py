@@ -7,7 +7,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-TTP_HOST = "127.0.0.1"
+TTP_HOST = "ttp"
 TTP_PORT = 9000
 
 SERVER_HOST = "0.0.0.0"
