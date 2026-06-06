@@ -27,6 +27,8 @@ session_key = None
 
 def register():
 
+    global certificate
+
     msg = {
         "type": "register_user",
         "id": user_id,
@@ -36,6 +38,9 @@ def register():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((TTP_HOST, TTP_PORT))
         s.send(json.dumps(msg).encode())
+
+        response = json.loads(s.recv(16384).decode())
+        certificate = response["certificate"]
 
         print("Registered in TTP:", s.recv(1024))
 
