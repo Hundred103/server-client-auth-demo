@@ -1,8 +1,10 @@
 import hashlib
 import socket
 import json
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
+from cProfile import label
+
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import serialization, hashes
 
 TTP_HOST = "127.0.0.1"
 TTP_PORT = 9000
@@ -53,6 +55,23 @@ def request_session_key():
         "server_id": hashlib.sha256("server1".encode()).hexdigest()
     }
 
+    with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as s:
+
+        s.connect((TTP_HOST,TTP_PORT))
+        s.send(json.dumps(msg).encode())
+
+        response = json.loads(s.recv(16384).decode())
+
+        encrypted_key = bytes.fromhex(response["user_key"])
+
+        session_key = private_key.decrypt(
+            encrypted_key,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
 
 
 def connect_server():
